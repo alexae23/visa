@@ -13,7 +13,7 @@ class SpotifyAuth extends Visa {
   final Debug _debug = Debug(prefix: 'In SpotifyAuth ->');
 
   @override
-  SimpleAuth visa;
+  SimpleAuth? visa;
 
   SpotifyAuth() {
     visa = SimpleAuth(
@@ -26,11 +26,11 @@ class SpotifyAuth extends Visa {
         /// calls a function which Sends a request to the
         /// user profile api endpoint. Returns an AuthData
         /// object.
-        getAuthData: (Map<String, String> oauthData) async {
+        getAuthData: (Map<String, String?> oauthData) async {
           if (debugMode) _debug.info('OAuth Data: $oauthData');
 
           await _getToken(oauthData);
-          final String token = oauthData[OAuth.TOKEN_KEY];
+          final String? token = oauthData[OAuth.TOKEN_KEY];
           if (debugMode) _debug.info('OAuth token: $token');
 
           final Map<String, dynamic> profileJson = await _getProfile(token);
@@ -44,8 +44,8 @@ class SpotifyAuth extends Visa {
   /// from the user [profileJson] and auth response [oauthData]
   /// to build an [AuthData] object.
   AuthData authData(
-      Map<String, dynamic> profileJson, Map<String, String> oauthData) {
-    final String accessToken = oauthData[OAuth.TOKEN_KEY];
+      Map<String, dynamic> profileJson, Map<String, String?> oauthData) {
+    final String? accessToken = oauthData[OAuth.TOKEN_KEY];
 
     return AuthData(
         clientID: oauthData[OAuth.CLIENT_ID_KEY],
@@ -63,7 +63,7 @@ class SpotifyAuth extends Visa {
   /// which can be exchanged for a token. This
   /// function performs the exchange and adds the
   /// returned data to the response [oauthData] map.
-  _getToken(Map<String, String> oauthData) async {
+  _getToken(Map<String, String?> oauthData) async {
     if (debugMode) _debug.info('Exchanging OAuth Code For Token');
 
     final Uri tokenEndpoint =
@@ -86,16 +86,16 @@ class SpotifyAuth extends Visa {
     final String expiryKey = 'expires_in';
     final String refreshTokenKey = 'refresh_token';
 
-    oauthData[OAuth.TOKEN_KEY] = responseJson[OAuth.TOKEN_KEY] as String;
-    oauthData[OAuth.SCOPE_KEY] = responseJson[OAuth.SCOPE_KEY] as String;
-    oauthData[tokenTypeKey] = responseJson[tokenTypeKey] as String;
+    oauthData[OAuth.TOKEN_KEY] = responseJson[OAuth.TOKEN_KEY] as String?;
+    oauthData[OAuth.SCOPE_KEY] = responseJson[OAuth.SCOPE_KEY] as String?;
+    oauthData[tokenTypeKey] = responseJson[tokenTypeKey] as String?;
     oauthData[expiryKey] = responseJson[expiryKey].toString();
     oauthData[refreshTokenKey] = responseJson[refreshTokenKey];
   }
 
   /// Get's a user's Spotify profile data and
   /// isolates the first and last name.
-  Future<Map<String, dynamic>> _getProfile(String token) async {
+  Future<Map<String, dynamic>> _getProfile(String? token) async {
     // User profile API endpoint.
     final String profileUrlString = 'https://api.spotify.com/v1/me';
     final Uri profileUrl = Uri.parse(profileUrlString);
@@ -110,8 +110,8 @@ class SpotifyAuth extends Visa {
 
     if (debugMode) _debug.info('Returned Profile Json: $profileJson');
 
-    final String displayName = profileJson['display_name'];
-    final List<dynamic> images = profileJson['images'];
+    final String? displayName = profileJson['display_name'];
+    final List<dynamic>? images = profileJson['images'];
 
     if (displayName != null) {
       List<String> names = displayName.split(' ');
